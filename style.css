@@ -1,0 +1,102 @@
+    body {
+      background-color: #181C1D;
+      color: #FFFFFF;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      overflow: hidden;
+    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #202526; }
+    ::-webkit-scrollbar-thumb { background: #343A3B; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00e5ff; }
+    input[type=range] { accent-color: #00e5ff; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      z-index: 50;
+      background-color: #252A2B;
+      border: 1px solid #343A3B;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+    .group:hover .dropdown-menu { display: block; }
+    /* Tap-to-open support for touch devices (hover alone doesn't work on touch) */
+    .group.open > .dropdown-menu { display: block; }
+    .btn-active { background-color: #303738 !important; color: #00e5ff !important; border-color: #00e5ff !important; }
+    .layer-row.active-layer { border-color: #00e5ff; background-color: #202526; }
+    #canvasStack { position: relative; }
+    #canvasStack canvas.layer-canvas { position: absolute; top: 0; left: 0; }
+    #interactionCanvas {
+      position: absolute; top: 0; left: 0; cursor: crosshair;
+      /* Stop the browser from panning/zooming/scrolling the page while drawing with touch or pen */
+      touch-action: none;
+      -ms-touch-action: none;
+    }
+    #colorSquare { touch-action: none; -ms-touch-action: none; }
+    #gridOverlay {
+      position: absolute; inset: 0; pointer-events: none; display: none;
+      background-image: linear-gradient(rgba(0,229,255,0.25) 1px, transparent 1px),
+                         linear-gradient(90deg, rgba(0,229,255,0.25) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    body.hide-ui header, body.hide-ui .ribbon, body.hide-ui aside { display: none !important; }
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px); z-index: 60; align-items: flex-start; justify-content: center; padding-top: 5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    #toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #252A2B; border: 1px solid #00e5ff; color: #fff; padding: 8px 16px; border-radius: 6px;
+      font-size: 12px; z-index: 70; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .thumb { image-rendering: pixelated; }
+
+    /* ===================================================================
+       MOBILE / TOUCH SUPPORT
+       =================================================================== */
+
+    /* Panel-toggle buttons in the header only make sense once the side
+       panels become off-canvas drawers, so hide them on wide screens. */
+    .panel-toggle-btn { display: none; }
+    .panel-close-btn { display: none; background: none; border: none; color: inherit; }
+
+    @media (max-width: 1024px) {
+      .panel-toggle-btn { display: inline-flex; }
+
+      .side-panel {
+        position: fixed;
+        top: 2rem;               /* below the 8-unit (2rem) header */
+        bottom: 1.5rem;          /* above the 6-unit (1.5rem) status bar */
+        width: 82vw;
+        max-width: 320px;
+        z-index: 55;
+        transition: transform .22s ease;
+        box-shadow: 0 0 40px rgba(0,0,0,.55);
+      }
+      #leftPanel  { left: 0;  transform: translateX(-105%); }
+      #rightPanel { right: 0; transform: translateX(105%); }
+      .side-panel.panel-open { transform: translateX(0); }
+
+      .panel-close-btn { display: inline-flex; padding: 2px 6px; }
+      .panel-header-icon { display: none; }
+
+      #mobileOverlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,.55);
+        z-index: 50;
+      }
+      #mobileOverlay.show { display: block; }
+
+      /* Bigger, easier-to-tap tool buttons in the ribbon */
+      .ribbon button, .ribbon .tool-btn { min-width: 34px; min-height: 34px; }
+
+      /* Keyboard-shortcut hints are meaningless without a keyboard */
+      .dropdown-menu .text-appSecondaryText { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .ribbon { padding-left: 0.25rem; padding-right: 0.25rem; }
+      #docTitle span, #docTitle { max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
