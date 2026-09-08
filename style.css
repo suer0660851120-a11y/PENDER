@@ -100,3 +100,62 @@
       .ribbon { padding-left: 0.25rem; padding-right: 0.25rem; }
       #docTitle span, #docTitle { max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     }
+
+    /* ===================================================================
+       LANDING PAGE ("หน้าหลัก") — added for index.html, does not touch
+       any of the editor styles above.
+       =================================================================== */
+    .nav-link { position: relative; }
+    .nav-link.active { color: #00e5ff; }
+    .nav-link.active::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -14px;
+      height: 2px;
+      background: #00e5ff;
+    }
+
+    .hero-panel {
+      background: radial-gradient(120% 160% at 15% 20%, #23335c 0%, #141a2e 45%, #0f1320 100%);
+      overflow: hidden;
+    }
+    .blob { position: absolute; opacity: .9; pointer-events: none; }
+
+    .cta-btn {
+      background: linear-gradient(180deg, #4c8dff 0%, #2f6bf0 100%);
+      box-shadow: 0 10px 25px -8px rgba(47,107,240,.7);
+      transition: filter .15s ease;
+    }
+    .cta-btn:hover { filter: brightness(1.08); }
+
+    .quick-card {
+      border-radius: 20px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .quick-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -12px rgba(0,0,0,.5); }
+
+    .size-chip {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 6px 14px;
+      background: rgba(30,64,175,.08);
+      color: #274873;
+      border: 1px solid rgba(39,72,115,.15);
+    }
+    .size-chip:hover { background: rgba(30,64,175,.16); }
+
+    .tpl-thumb {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #eee0f7;
+    }
+
+    .feat-icon {
+      width: 56px; height: 56px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .hero-illustration { display: none; }
+    }
