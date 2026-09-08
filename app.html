@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ระบายสีโปร - Professional Digital Painting Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Tailwind's browser build must be configured right after it loads,
+    // so this tiny snippet stays inline. Everything else lives in style.css / script.js.
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            appBg: '#181C1D',
+            appToolbar: '#202526',
+            appPanel: '#252A2B',
+            appBorder: '#343A3B',
+            appHover: '#303738',
+            appCyan: '#00e5ff',
+            appSecondaryText: '#A8B0B2'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="h-screen flex flex-col justify-between text-xs">
+
+  <input type="file" id="fileInput" accept="image/*" class="hidden">
+
+  <!-- TOP MENU BAR -->
+  <header class="h-8 bg-appToolbar border-b border-appBorder flex items-center justify-between px-3 z-40">
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-1.5 font-bold text-appCyan text-sm">
+        <i class="fa-solid fa-paint-brush"></i>
+        <span id="docTitle">ไม่มีชื่อ - ระบายสีโปร</span>
+      </div>
+      <nav class="flex space-x-1 text-appSecondaryText text-xs">
+        <div class="relative group cursor-pointer px-2 py-0.5 hover:text-white hover:bg-appHover rounded">
+          <span>ไฟล์ (File)</span>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-action="new" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>สร้างใหม่ (New)</span><span class="text-appSecondaryText">Ctrl+N</span></a>
+            <a href="#" data-action="open" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>เปิดไฟล์ (Open)</span><span class="text-appSecondaryText">Ctrl+O</span></a>
+            <a href="#" data-action="toast" class="block px-3 py-1 hover:bg-appHover">เปิดไฟล์ล่าสุด (Recent)</a>
+            <hr class="border-appBorder my-1">
+            <a href="#" data-action="save" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>บันทึก (Save)</span><span class="text-appSecondaryText">Ctrl+S</span></a>
+            <a href="#" data-action="save" class="block px-3 py-1 hover:bg-appHover">บันทึกเป็น (Save As...)</a>
+            <a href="#" data-action="save" class="block px-3 py-1 hover:bg-appHover">ส่งออก (Export)</a>
+            <a href="#" data-action="open" class="block px-3 py-1 hover:bg-appHover">นำเข้า (Import)</a>
+            <hr class="border-appBorder my-1">
+            <a href="#" data-action="new" class="block px-3 py-1 hover:bg-appHover text-red-400">ปิดโปรเจกต์ (Close)</a>
+          </div>
+        </div>
+
+        <div class="relative group cursor-pointer px-2 py-0.5 hover:text-white hover:bg-appHover rounded">
+          <span>แก้ไข (Edit)</span>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-action="undo" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>Undo</span><span class="text-appSecondaryText">Ctrl+Z</span></a>
+            <a href="#" data-action="redo" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>Redo</span><span class="text-appSecondaryText">Ctrl+Y</span></a>
+            <hr class="border-appBorder my-1">
+            <a href="#" data-action="cut" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>Cut</span><span class="text-appSecondaryText">Ctrl+X</span></a>
+            <a href="#" data-action="copy" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>Copy</span><span class="text-appSecondaryText">Ctrl+C</span></a>
+            <a href="#" data-action="paste" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>Paste</span><span class="text-appSecondaryText">Ctrl+V</span></a>
+            <a href="#" data-action="delete-selection" class="block px-3 py-1 hover:bg-appHover">Delete</a>
+            <hr class="border-appBorder my-1">
+            <a href="#" data-action="select-all" class="block px-3 py-1 hover:bg-appHover">Select All</a>
+            <a href="#" data-action="deselect" class="block px-3 py-1 hover:bg-appHover">Deselect</a>
+            <a href="#" data-action="invert-selection" class="block px-3 py-1 hover:bg-appHover">Invert Selection</a>
+          </div>
+        </div>
+
+        <div class="relative group cursor-pointer px-2 py-0.5 hover:text-white hover:bg-appHover rounded">
+          <span>มุมมอง (View)</span>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-action="zoom-in" class="block px-3 py-1 hover:bg-appHover">Zoom In</a>
+            <a href="#" data-action="zoom-out" class="block px-3 py-1 hover:bg-appHover">Zoom Out</a>
+            <a href="#" data-action="zoom-fit" class="block px-3 py-1 hover:bg-appHover">Fit Canvas</a>
+            <a href="#" data-action="zoom-100" class="block px-3 py-1 hover:bg-appHover">100%</a>
+            <hr class="border-appBorder my-1">
+            <a href="#" data-action="toggle-grid" class="block px-3 py-1 hover:bg-appHover">Show Grid</a>
+            <a href="#" data-action="toast" class="block px-3 py-1 hover:bg-appHover">Show Guides</a>
+            <a href="#" data-action="toast" class="block px-3 py-1 hover:bg-appHover">Show Rulers</a>
+            <a href="#" data-action="toggle-ui" class="block px-3 py-1 hover:bg-appHover flex justify-between"><span>Hide UI</span><span class="text-appSecondaryText">Tab</span></a>
+          </div>
+        </div>
+
+        <div class="relative group cursor-pointer px-2 py-0.5 hover:text-white hover:bg-appHover rounded">
+          <span>รูปภาพ (Image)</span>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-action="resize-canvas" class="block px-3 py-1 hover:bg-appHover">Resize Canvas</a>
+            <a href="#" data-action="resize-image" class="block px-3 py-1 hover:bg-appHover">Resize Image</a>
+            <a href="#" data-action="rotate-canvas" class="block px-3 py-1 hover:bg-appHover">Rotate Canvas</a>
+            <a href="#" data-action="flip-canvas" class="block px-3 py-1 hover:bg-appHover">Flip Canvas</a>
+            <a href="#" data-action="crop" class="block px-3 py-1 hover:bg-appHover">Crop</a>
+          </div>
+        </div>
+
+        <div class="relative group cursor-pointer px-2 py-0.5 hover:text-white hover:bg-appHover rounded">
+          <span>เลเยอร์ (Layer)</span>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-action="layer-new" class="block px-3 py-1 hover:bg-appHover">New Layer</a>
+            <a href="#" data-action="layer-duplicate" class="block px-3 py-1 hover:bg-appHover">Duplicate Layer</a>
+            <a href="#" data-action="layer-merge-down" class="block px-3 py-1 hover:bg-appHover">Merge Layer</a>
+            <a href="#" data-action="toast" class="block px-3 py-1 hover:bg-appHover">Group Layer</a>
+            <a href="#" data-action="flatten" class="block px-3 py-1 hover:bg-appHover">Flatten Image</a>
+          </div>
+        </div>
+
+        <div class="relative group cursor-pointer px-2 py-0.5 hover:text-white hover:bg-appHover rounded">
+          <span>ช่วยเหลือ (Help)</span>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-action="show-shortcuts" class="block px-3 py-1 hover:bg-appHover">Keyboard Shortcuts</a>
+            <a href="#" data-action="toast" class="block px-3 py-1 hover:bg-appHover">Documentation</a>
+            <a href="#" data-action="show-about" class="block px-3 py-1 hover:bg-appHover">About</a>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <button id="toggleLeftPanel" title="คุณสมบัติแปรง" class="panel-toggle-btn p-1.5 hover:text-appCyan"><i class="fa-solid fa-sliders"></i></button>
+      <button id="searchBtn" onclick="toggleSearchModal()" class="hidden sm:flex items-center space-x-2 bg-appPanel border border-appBorder px-2 py-0.5 rounded text-appSecondaryText hover:text-white hover:border-appCyan">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>ค้นหาเครื่องมือ...</span>
+        <span class="bg-appHover text-xs px-1 rounded border border-appBorder">Ctrl+K</span>
+      </button>
+      <button id="searchBtnMobile" onclick="toggleSearchModal()" class="sm:hidden p-1.5 hover:text-appCyan"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <div class="h-4 w-px bg-appBorder"></div>
+      <button title="Undo (Ctrl+Z)" data-action="undo" class="p-1 hover:text-appCyan"><i class="fa-solid fa-rotate-left"></i></button>
+      <button title="Redo (Ctrl+Y)" data-action="redo" class="p-1 hover:text-appCyan"><i class="fa-solid fa-rotate-right"></i></button>
+      <button id="toggleRightPanel" title="สี & เลเยอร์" class="panel-toggle-btn p-1.5 hover:text-appCyan"><i class="fa-solid fa-layer-group"></i></button>
+    </div>
+  </header>
+
+  <!-- RIBBON -->
+  <section class="ribbon h-16 bg-appToolbar border-b border-appBorder flex items-center px-2 space-x-3 overflow-x-auto z-30">
+
+    <div class="flex flex-col items-center border-r border-appBorder pr-2">
+      <div class="flex space-x-1 mb-1">
+        <button title="Move (V)" data-tool="move" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-arrow-pointer"></i></button>
+        <button title="Rectangle Selection (M)" data-tool="rect-select" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-regular fa-square"></i></button>
+        <div class="relative group">
+          <button title="More Selections" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-caret-down"></i></button>
+          <div class="dropdown-menu top-full left-0 w-44 py-1 rounded-md text-white">
+            <a href="#" data-tool="ellipse-select" class="block px-3 py-1 hover:bg-appHover">Ellipse Selection</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Lasso Freehand</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Polygonal Selection</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Magnetic Selection</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Color Selection</a>
+          </div>
+        </div>
+      </div>
+      <span class="text-[10px] text-appSecondaryText">การเลือก</span>
+    </div>
+
+    <div class="flex flex-col items-center border-r border-appBorder pr-2">
+      <div class="flex space-x-1 mb-1">
+        <button title="Pen (B)" data-tool="pen" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-pen-nib"></i></button>
+        <button title="Pencil (P)" data-tool="pencil" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-pencil"></i></button>
+        <button title="Brush (B)" data-tool="brush" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-paint-brush"></i></button>
+        <button title="Airbrush" data-tool="airbrush" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-spray-can"></i></button>
+        <button title="Eraser (E)" data-tool="eraser" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-eraser"></i></button>
+        <div class="relative group">
+          <button title="Creative Brushes" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Glow & Neon Brush</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Particle & Spark</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Smoke & Fire Brush</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Cloud & Weather</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Fur & Hair Brush</a>
+          </div>
+        </div>
+      </div>
+      <span class="text-[10px] text-appSecondaryText">เครื่องมือวาด</span>
+    </div>
+
+    <div class="flex flex-col items-center border-r border-appBorder pr-2">
+      <div class="flex space-x-1 mb-1">
+        <button title="Line (L)" data-tool="line" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-slash"></i></button>
+        <button title="Rectangle (R)" data-tool="rect-shape" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-regular fa-square"></i></button>
+        <button title="Circle (U)" data-tool="circle-shape" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-regular fa-circle"></i></button>
+        <div class="relative group">
+          <button title="More Shapes" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-shapes"></i></button>
+          <div class="dropdown-menu top-full left-0 w-40 py-1 rounded-md text-white">
+            <a href="#" data-tool="triangle-shape" class="block px-3 py-1 hover:bg-appHover">Triangle</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Polygon & Star</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Speech Bubble</a>
+            <a href="#" data-tool="toast" class="block px-3 py-1 hover:bg-appHover">Custom Shapes</a>
+          </div>
+        </div>
+      </div>
+      <span class="text-[10px] text-appSecondaryText">รูปทรง</span>
+    </div>
+
+    <div class="flex flex-col items-center border-r border-appBorder pr-2">
+      <div class="flex space-x-1 mb-1">
+        <button title="Fill / Bucket (G)" data-tool="fill" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-fill-drip"></i></button>
+        <button title="Gradient Tool" data-tool="gradient" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-gradient"></i></button>
+        <button title="Eyedropper (I)" data-tool="eyedropper" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-eye-dropper"></i></button>
+      </div>
+      <span class="text-[10px] text-appSecondaryText">สี & การเติม</span>
+    </div>
+
+    <div class="flex flex-col items-center border-r border-appBorder pr-2">
+      <div class="flex space-x-1 mb-1">
+        <button title="Symmetry (S)" id="symmetryBtn" data-action="toggle-symmetry" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-arrows-split-up-and-left"></i></button>
+        <button title="Perspective Assistant" data-action="toast" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-cubes"></i></button>
+        <button title="Ruler & Guides (Grid)" id="gridBtn" data-action="toggle-grid" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-ruler-combined"></i></button>
+      </div>
+      <span class="text-[10px] text-appSecondaryText">ผู้ช่วยวาด</span>
+    </div>
+
+    <div class="flex flex-col items-center border-r border-appBorder pr-2">
+      <div class="flex space-x-1 mb-1">
+        <button title="Blur Tool" data-tool="blur-tool" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-droplet"></i></button>
+        <button title="Smudge Tool" data-tool="smudge" class="tool-btn p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-hand-pointer"></i></button>
+        <div class="relative group">
+          <button title="Effect Gallery" class="p-1.5 bg-appPanel hover:bg-appHover rounded border border-appBorder"><i class="fa-solid fa-sparkles"></i></button>
+          <div class="dropdown-menu top-full left-0 w-48 py-1 rounded-md text-white">
+            <a href="#" data-effect="gaussian-blur" class="block px-3 py-1 hover:bg-appHover">Gaussian Blur</a>
+            <a href="#" data-effect="toast" class="block px-3 py-1 hover:bg-appHover">Glow & Outer Glow</a>
+            <a href="#" data-effect="toast" class="block px-3 py-1 hover:bg-appHover">Glitch & RGB Split</a>
+            <a href="#" data-effect="pixelate" class="block px-3 py-1 hover:bg-appHover">Pixelate / Mosaic</a>
+            <a href="#" data-effect="toast" class="block px-3 py-1 hover:bg-appHover">Halftone & Sketch</a>
+          </div>
+        </div>
+      </div>
+      <span class="text-[10px] text-appSecondaryText">เอฟเฟกต์</span>
+    </div>
+
+  </section>
+
+  <!-- WORKSPACE -->
+  <main class="flex-1 flex overflow-hidden relative">
+
+    <!-- LEFT PANEL -->
+    <aside id="leftPanel" class="side-panel w-64 bg-appPanel border-r border-appBorder flex flex-col justify-between overflow-y-auto p-2">
+      <div>
+        <div class="font-bold border-b border-appBorder pb-1 mb-2 text-appCyan flex items-center justify-between">
+          <span>คุณสมบัติแปรง (Brush Settings)</span>
+          <i class="fa-solid fa-sliders panel-header-icon"></i>
+          <button class="panel-close-btn" data-close-panel><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="w-full h-16 bg-appBg rounded border border-appBorder mb-3 flex items-center justify-center relative overflow-hidden">
+          <svg id="brushPreviewSvg" class="w-full h-full" viewBox="0 0 200 50">
+            <path id="brushPreviewPath" d="M 10 25 Q 50 5, 100 25 T 190 25" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+          <span class="absolute bottom-1 right-2 text-[9px] text-appSecondaryText">ตัวอย่างเส้น</span>
+        </div>
+
+        <div class="space-y-2.5">
+          <div>
+            <div class="flex justify-between text-appSecondaryText mb-1">
+              <span>ขนาด (Size)</span><span id="sizeVal">25px</span>
+            </div>
+            <input type="range" id="sizeSlider" min="1" max="300" value="25" class="w-full h-1 bg-appBorder rounded-lg cursor-pointer">
+          </div>
+          <div>
+            <div class="flex justify-between text-appSecondaryText mb-1">
+              <span>ความทึบ (Opacity)</span><span id="opacVal">100%</span>
+            </div>
+            <input type="range" id="opacitySlider" min="1" max="100" value="100" class="w-full h-1 bg-appBorder rounded-lg cursor-pointer">
+          </div>
+          <div>
+            <div class="flex justify-between text-appSecondaryText mb-1">
+              <span>ความแข็ง (Hardness)</span><span id="hardVal">50%</span>
+            </div>
+            <input type="range" id="hardnessSlider" min="0" max="100" value="50" class="w-full h-1 bg-appBorder rounded-lg cursor-pointer">
+          </div>
+          <div>
+            <div class="flex justify-between text-appSecondaryText mb-1">
+              <span>การไหล (Flow)</span><span id="flowVal">80%</span>
+            </div>
+            <input type="range" id="flowSlider" min="1" max="100" value="80" class="w-full h-1 bg-appBorder rounded-lg cursor-pointer">
+          </div>
+          <div>
+            <div class="flex justify-between text-appSecondaryText mb-1">
+              <span>เสถียรภาพ (Stabilizer)</span><span id="stabVal">20%</span>
+            </div>
+            <input type="range" id="stabilizerSlider" min="0" max="100" value="20" class="w-full h-1 bg-appBorder rounded-lg cursor-pointer">
+          </div>
+          <div class="flex justify-between items-center pt-1 border-t border-appBorder">
+            <span class="text-appSecondaryText">แรงกดปากกา (Pressure)</span>
+            <select id="pressureSelect" class="bg-appToolbar border border-appBorder rounded px-1 py-0.5 text-xs">
+              <option value="on">เปิด (On)</option>
+              <option value="off">ปิด (Off)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-2 border-t border-appBorder">
+        <div class="flex justify-between items-center mb-1.5">
+          <span class="font-semibold text-appSecondaryText">แปรงที่ใช้บ่อย</span>
+          <button data-tool="brush" class="p-0.5 hover:text-appCyan"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5 max-h-36 overflow-y-auto">
+          <button data-tool="pen" class="tool-btn p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-pen-nib"></i></button>
+          <button data-tool="pencil" class="tool-btn p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-pencil"></i></button>
+          <button data-tool="brush" class="tool-btn p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-paint-brush"></i></button>
+          <button data-tool="airbrush" class="tool-btn p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-spray-can"></i></button>
+          <button data-tool="eraser" class="tool-btn p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-eraser"></i></button>
+          <button data-tool="toast" class="p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+          <button data-tool="smudge" class="tool-btn p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-droplet"></i></button>
+          <button data-tool="toast" class="p-2 bg-appToolbar hover:bg-appHover rounded border border-appBorder text-center"><i class="fa-solid fa-fire"></i></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CANVAS -->
+    <section class="flex-1 bg-appBg flex items-center justify-center p-4 relative overflow-auto">
+      <div class="absolute top-3 left-3 bg-appToolbar/80 backdrop-blur border border-appBorder rounded flex items-center space-x-1 p-1 z-10">
+        <button title="Symmetry Toggle" data-action="toggle-symmetry" class="p-1 hover:text-appCyan"><i class="fa-solid fa-arrows-split-up-and-left"></i></button>
+        <button title="Ruler Guide (Grid)" data-action="toggle-grid" class="p-1 hover:text-appCyan"><i class="fa-solid fa-ruler-combined"></i></button>
+        <div class="w-px h-4 bg-appBorder"></div>
+        <button title="Clear Active Layer" class="p-1 hover:text-red-400" data-action="clear-layer"><i class="fa-solid fa-trash"></i></button>
+      </div>
+
+      <div class="relative shadow-2xl border border-appBorder" id="canvasWrapper">
+        <div id="canvasStack" class="bg-white">
+          <!-- layer canvases injected here -->
+          <canvas id="interactionCanvas" class="layer-canvas"></canvas>
+          <div id="gridOverlay"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <aside id="rightPanel" class="side-panel w-72 bg-appPanel border-l border-appBorder flex flex-col justify-between p-2 overflow-y-auto">
+
+      <div class="border-b border-appBorder pb-3">
+        <div class="font-bold text-appCyan flex items-center justify-between mb-2">
+          <span>เลือกสี (Color Panel)</span>
+          <div class="flex items-center space-x-2">
+            <div class="w-5 h-5 rounded border border-appBorder" id="currentColorSwatch" style="background:#00e5ff;"></div>
+            <button class="panel-close-btn" data-close-panel><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+
+        <canvas id="colorSquare" width="256" height="128" class="w-full h-32 rounded border border-appBorder cursor-crosshair block"></canvas>
+
+        <input type="range" id="hueSlider" min="0" max="360" value="187" class="w-full h-2 rounded-lg cursor-pointer my-2" style="background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red);">
+
+        <div class="grid grid-cols-8 gap-1 mb-2">
+          <div data-color="#000000" class="w-5 h-5 rounded bg-black cursor-pointer border border-appBorder"></div>
+          <div data-color="#ffffff" class="w-5 h-5 rounded bg-white cursor-pointer border border-appBorder"></div>
+          <div data-color="#ef4444" class="w-5 h-5 rounded bg-red-500 cursor-pointer border border-appBorder"></div>
+          <div data-color="#facc15" class="w-5 h-5 rounded bg-yellow-400 cursor-pointer border border-appBorder"></div>
+          <div data-color="#22c55e" class="w-5 h-5 rounded bg-green-500 cursor-pointer border border-appBorder"></div>
+          <div data-color="#22d3ee" class="w-5 h-5 rounded bg-cyan-400 cursor-pointer border border-appBorder"></div>
+          <div data-color="#2563eb" class="w-5 h-5 rounded bg-blue-600 cursor-pointer border border-appBorder"></div>
+          <div data-color="#9333ea" class="w-5 h-5 rounded bg-purple-600 cursor-pointer border border-appBorder"></div>
+        </div>
+        <input type="text" id="hexInput" value="#00E5FF" maxlength="7" class="w-full bg-appToolbar border border-appBorder rounded px-2 py-1 text-xs text-center tracking-wider">
+      </div>
+
+      <div class="flex-1 flex flex-col justify-between pt-2 overflow-hidden">
+        <div class="flex flex-col overflow-hidden">
+          <div class="flex items-center justify-between font-bold text-appCyan mb-2">
+            <span>เลเยอร์ (Layers)</span>
+            <div class="flex items-center space-x-1">
+              <button title="New Layer" data-action="layer-new" class="p-1 hover:text-appCyan"><i class="fa-solid fa-plus"></i></button>
+              <button title="Delete Layer" data-action="layer-delete" class="p-1 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </div>
+
+          <div class="flex space-x-2 mb-2">
+            <select id="blendModeSelect" class="flex-1 bg-appToolbar border border-appBorder rounded px-1 py-0.5 text-xs text-white">
+              <option value="source-over">ปกติ (Normal)</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="overlay">Overlay</option>
+            </select>
+            <input type="number" id="layerOpacityInput" min="0" max="100" value="100" class="w-14 bg-appToolbar border border-appBorder rounded px-1 py-0.5 text-center text-xs text-white">
+          </div>
+
+          <div id="layersList" class="space-y-1 max-h-64 overflow-y-auto"></div>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- STATUS BAR -->
+  <footer class="h-6 bg-appToolbar border-t border-appBorder px-3 flex items-center justify-between text-appSecondaryText text-[11px] z-40">
+    <div class="flex items-center space-x-4">
+      <span id="coordsDisplay">X: 0, Y: 0</span>
+      <span class="h-3 w-px bg-appBorder"></span>
+      <span id="dimsDisplay">1022 × 564 px</span>
+      <span class="h-3 w-px bg-appBorder"></span>
+      <span class="text-green-400" id="fpsDisplay">FPS: 60</span>
+      <span class="h-3 w-px bg-appBorder"></span>
+      <span id="memDisplay">Memory: 0 MB</span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button title="Fit Canvas" data-action="zoom-fit" class="hover:text-white"><i class="fa-solid fa-expand"></i></button>
+      <span id="zoomLabel">100%</span>
+      <input type="range" id="zoomSlider" min="10" max="800" value="100" class="w-20 h-1 bg-appBorder rounded cursor-pointer">
+      <button title="Zoom Out" data-action="zoom-out" class="hover:text-white"><i class="fa-solid fa-minus"></i></button>
+      <button title="Zoom In" data-action="zoom-in" class="hover:text-white"><i class="fa-solid fa-plus"></i></button>
+    </div>
+  </footer>
+
+  <!-- SEARCH MODAL -->
+  <div id="searchModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-start justify-center pt-20">
+    <div class="bg-appPanel border border-appBorder rounded-lg w-full max-w-md shadow-2xl p-3">
+      <div class="flex items-center border-b border-appBorder pb-2 mb-2">
+        <i class="fa-solid fa-magnifying-glass text-appCyan mr-2"></i>
+        <input type="text" id="searchInput" placeholder="พิมพ์ชื่อเครื่องมือ (เช่น Blur, วงกลม, Brush)..." class="w-full bg-transparent border-none outline-none text-white text-xs">
+        <button onclick="toggleSearchModal()" class="text-appSecondaryText hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="searchResults" class="space-y-1 max-h-60 overflow-y-auto text-xs"></div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL (shortcuts / about) -->
+  <div id="infoModal" class="modal-backdrop">
+    <div class="bg-appPanel border border-appBorder rounded-lg w-full max-w-md shadow-2xl p-4">
+      <div class="flex items-center justify-between border-b border-appBorder pb-2 mb-2">
+        <h2 id="infoModalTitle" class="font-bold text-appCyan"></h2>
+        <button onclick="closeInfoModal()" class="text-appSecondaryText hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="infoModalBody" class="text-xs text-appSecondaryText space-y-1 max-h-80 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <div id="mobileOverlay"></div>
+</body>
+<script src="script.js"></script>
+</html>
